@@ -20,17 +20,22 @@ st.set_page_config(
 st.markdown("### 🛠 緊急診断モード")
 if st.button("今使えるモデル一覧を表示"):
     try:
-        genai.configure(api_key=GOOGLE_API_KEY)
-        models = genai.list_models()
+        # 【修正】古い genai.configure ではなく、Client を作成します
+        client = genai.Client(api_key=GOOGLE_API_KEY)
+        
+        # 【修正】client経由でモデルリストを取得します
+        # config=None で全モデルを取得し、名前だけ抽出します
+        models = client.models.list()
         
         found_models = []
         for m in models:
-            if 'generateContent' in m.supported_generation_methods:
-                found_models.append(m.name)
+            # 新しいSDKでは m.name がモデル名を保持しています
+            found_models.append(m.name)
         
-        st.success("✅ API接続成功！")
+        st.success("✅ API接続成功！ (New SDK)")
         st.text("▼ 利用可能なモデル一覧:")
         st.code("\n".join(found_models))
+        
     except Exception as e:
         st.error(f"❌ 接続エラー: {e}")
 st.markdown("---")
@@ -318,6 +323,7 @@ if st.button("✨ ベストなプランを生成する"):
                     </button>
                 </div>
                 """, unsafe_allow_html=True)
+
 
 
 
