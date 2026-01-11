@@ -126,7 +126,7 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# --- AIロジック (Gemini 1.5 Flash 002 固定) ---
+# --- AIロジック (Gemini 1.5 Flash 固定) ---
 def get_study_plan_json(status, mbti, budget, period, interest, preferred_country):
     if not GOOGLE_API_KEY or GOOGLE_API_KEY == "ここにAPIキーを入力":
         st.error("APIキーが設定されていません。コード内の `GOOGLE_API_KEY` を確認してください。")
@@ -186,10 +186,9 @@ def get_study_plan_json(status, mbti, budget, period, interest, preferred_countr
     """
     
     try:
-        # モデル名を 'gemini-1.5-flash-002' に変更
-        # これは最新の安定版であり、確実に存在するIDです
+        # モデル名を最も標準的な 'gemini-1.5-flash' に戻しました
         response = client.models.generate_content(
-            model='gemini-1.5-flash-002',
+            model='gemini-1.5-flash',
             contents=prompt,
             config=types.GenerateContentConfig(
                 response_mime_type='application/json' 
@@ -197,7 +196,8 @@ def get_study_plan_json(status, mbti, budget, period, interest, preferred_countr
         )
         return json.loads(response.text)
     except Exception as e:
-        st.error(f"エラーが発生しました: {e}")
+        # エラーが発生した場合、画面に詳細を表示
+        st.error(f"AIエラー: {e}")
         return None
 
 # --- UI構築 ---
@@ -358,4 +358,6 @@ if st.button("✨ ベストなプランを生成する"):
                     </button>
                 </div>
                 """, unsafe_allow_html=True)
+                """, unsafe_allow_html=True)
+
 
