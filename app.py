@@ -17,7 +17,7 @@ st.set_page_config(
 )
 
 # --- ここから診断用コード (st.set_page_config の直下に貼る) ---
-st.markdown("### 🛠 緊急診断モード")
+#st.markdown("### 🛠 緊急診断モード")
 if st.button("今使えるモデル一覧を表示"):
     try:
         # 【修正】古い genai.configure ではなく、Client を作成します
@@ -177,6 +177,7 @@ def get_study_plan_json(status, mbti, budget, period, interest, preferred_countr
         response = client.models.generate_content(
             model= "gemini-3-flash-preview",
             #'gemini-2.5-flash-preview-09-2025',
+            #'gemini-2.5-flash-lite-preview-09-2025',
             contents=prompt,
             config=types.GenerateContentConfig(
                 response_mime_type='application/json' 
@@ -324,6 +325,7 @@ if st.button("✨ ベストなプランを生成する"):
                     </button>
                 </div>
                 """, unsafe_allow_html=True)
+
 
 
 
