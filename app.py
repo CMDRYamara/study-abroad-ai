@@ -1,6 +1,5 @@
 import streamlit as st
-from google import genai
-from google.genai import types
+import google.generativeai as genai # ←ここを変更しました（安定版）
 import json
 import urllib.parse
 import os
@@ -126,13 +125,14 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# --- AIロジック (Gemini 1.5 Flash 固定) ---
+# --- AIロジック (Gemini 1.5 Flash - google-generativeai版) ---
 def get_study_plan_json(status, mbti, budget, period, interest, preferred_country):
     if not GOOGLE_API_KEY or GOOGLE_API_KEY == "ここにAPIキーを入力":
         st.error("APIキーが設定されていません。コード内の `GOOGLE_API_KEY` を確認してください。")
         return None
 
-    client = genai.Client(api_key=GOOGLE_API_KEY)
+    # API設定（ここを修正しました）
+    genai.configure(api_key=GOOGLE_API_KEY)
     
     # 任意の国指定がある場合の処理
     country_instruction = f"ユーザーの希望により、必ず「{preferred_country}」でのプランを作成してください。" if preferred_country else "条件に最適な国を選定してください。"
@@ -150,7 +150,7 @@ def get_study_plan_json(status, mbti, budget, period, interest, preferred_countr
     ・国指定: {preferred_country if preferred_country else "なし"}
 
     【出力要件】
-    以下のJSONスキーマに従って出力してください。
+    以下のJSONスキーマに従って出力してください。Markdownのコードブロック（```json）は含めず、純粋なJSONテキストのみを返してください。
     特に「金額の根拠」と「ロードマップ」は具体的に記述すること。
     
     {{
@@ -186,14 +186,14 @@ def get_study_plan_json(status, mbti, budget, period, interest, preferred_countr
     """
     
     try:
-        # モデル名を最も標準的な 'gemini-1.5-flash' に戻しました
-        response = client.models.generate_content(
-            model='gemini-1.5-flash',
-            contents=prompt,
-            config=types.GenerateContentConfig(
-                response_mime_type='application/json' 
-            )
+        # モデルの初期化（ここを修正しました）
+        model = genai.GenerativeModel(
+            model_name='gemini-1.5-flash',
+            generation_config={"response_mime_type": "application/json"}
         )
+
+        response = model.generate_content(prompt)
+        
         return json.loads(response.text)
     except Exception as e:
         # エラーが発生した場合、画面に詳細を表示
@@ -272,7 +272,7 @@ if st.button("✨ ベストなプランを生成する"):
 
                 # --- PLAN A メインカード ---
                 image_keyword = plan_a.get('image_keyword', 'travel')
-                image_url = f"https://image.pollinations.ai/prompt/scenic%20photo%20of%20{plan_a['country']}%20{image_keyword}%20atmosphere?width=800&height=400&nologo=true"
+                image_url = f"[https://image.pollinations.ai/prompt/scenic%20photo%20of%20](https://image.pollinations.ai/prompt/scenic%20photo%20of%20){plan_a['country']}%20{image_keyword}%20atmosphere?width=800&height=400&nologo=true"
                 
                 st.markdown(f"""
                 <div class="card" style="border-top: 5px solid #ff758c; padding:0; overflow:hidden;">
@@ -358,7 +358,6 @@ if st.button("✨ ベストなプランを生成する"):
                     </button>
                 </div>
                 """, unsafe_allow_html=True)
-
 
 
 
