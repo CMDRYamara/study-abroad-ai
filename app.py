@@ -209,7 +209,7 @@ def get_study_plan_json(status, mbti, budget, period, interest, preferred_countr
     try:
         # モデルの初期化（ここを修正しました）
         model = genai.GenerativeModel(
-            model_name='gemini-1.5-flash',
+            model_name='gemini-2.0-flash-lite',
             generation_config={"response_mime_type": "application/json"}
         )
 
@@ -379,6 +379,7 @@ if st.button("✨ ベストなプランを生成する"):
                     </button>
                 </div>
                 """, unsafe_allow_html=True)
+
 
 
 
