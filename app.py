@@ -51,13 +51,24 @@ st.markdown("""
         box-shadow: 0 4px 6px rgba(0,0,0,0.05);
         margin-bottom: 20px;
         transition: transform 0.2s;
+        
+        /* ▼▼▼ ここを追加・修正 ▼▼▼ */
+        color: #333333; /* 文字色を強制的にダークグレーにする */
+        /* ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */
     }
+    
     .card:hover { transform: translateY(-2px); }
     .card-title {
         color: #764ba2; font-size: 1.1rem; font-weight: bold;
         margin-bottom: 10px; display: flex; align-items: center; gap: 10px;
     }
     
+    /* カード内の見出しなどが白くならないように念のため指定 */
+    .card h1, .card h2, .card h3, .card h4, .card h5, .card h6, .card p, .card li {
+        color: #333333; 
+    }
+    /* ただし、個別に色指定しているクラス(.card-titleなど)は優先されるので大丈夫です */
+
     /* ボタン */
     .stButton>button {
         width: 100%;
@@ -214,4 +225,5 @@ if st.button("✨ ベストなプランを生成する"):
                         📅 先輩と話してみる (初回無料)
                     </button>
                 </div>
+
                 """, unsafe_allow_html=True)
