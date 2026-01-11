@@ -16,6 +16,26 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
+# --- ここから診断用コード (st.set_page_config の直下に貼る) ---
+st.markdown("### 🛠 緊急診断モード")
+if st.button("今使えるモデル一覧を表示"):
+    try:
+        genai.configure(api_key=GOOGLE_API_KEY)
+        models = genai.list_models()
+        
+        found_models = []
+        for m in models:
+            if 'generateContent' in m.supported_generation_methods:
+                found_models.append(m.name)
+        
+        st.success("✅ API接続成功！")
+        st.text("▼ 利用可能なモデル一覧:")
+        st.code("\n".join(found_models))
+    except Exception as e:
+        st.error(f"❌ 接続エラー: {e}")
+st.markdown("---")
+# --- 診断用コード終わり ---
+
 # --- URLパラメータから初期値を取得する関数 ---
 def get_params():
     params = st.query_params
@@ -298,6 +318,7 @@ if st.button("✨ ベストなプランを生成する"):
                     </button>
                 </div>
                 """, unsafe_allow_html=True)
+
 
 
 
