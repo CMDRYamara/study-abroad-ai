@@ -18,7 +18,7 @@ st.set_page_config(
 
 # --- ここから診断用コード (st.set_page_config の直下に貼る) ---
 #st.markdown("### 🛠 緊急診断モード")
-if st.button("今使えるモデル一覧を表示"):
+#if st.button("今使えるモデル一覧を表示"):
     try:
         # 【修正】古い genai.configure ではなく、Client を作成します
         client = genai.Client(api_key=GOOGLE_API_KEY)
@@ -325,6 +325,7 @@ if st.button("✨ ベストなプランを生成する"):
                     </button>
                 </div>
                 """, unsafe_allow_html=True)
+
 
 
 
