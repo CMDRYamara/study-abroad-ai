@@ -7,12 +7,10 @@ import os
 
 # --- 設定 ---
 # 本番環境では st.secrets を使用
-# ローカルでテストする場合、secrets.tomlがないとエラーになるため、
-# 以下のようにtry-exceptで環境変数か直接入力を許容するようにしておくと便利です
+# ローカルテスト用: APIキーがない場合の安全策
 try:
     GOOGLE_API_KEY = st.secrets["GOOGLE_API_KEY"]
 except:
-    # ローカルテスト用（gitには上げないでください）
     GOOGLE_API_KEY = "ここにAPIキーを入力"
 
 # ページ設定
@@ -39,7 +37,6 @@ def get_params():
 default_values = get_params()
 
 # --- デザイン(CSS)の注入 ---
-# エラーの原因になりやすい箇所です。引用符の閉じ忘れに注意してください。
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700&display=swap');
@@ -129,7 +126,7 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# --- AIロジック (Gemini 1.5 Flash固定) ---
+# --- AIロジック (Gemini 1.5 Flash Latest固定) ---
 def get_study_plan_json(status, mbti, budget, period, interest, preferred_country):
     if not GOOGLE_API_KEY or GOOGLE_API_KEY == "ここにAPIキーを入力":
         st.error("APIキーが設定されていません。コード内の `GOOGLE_API_KEY` を確認してください。")
@@ -189,9 +186,9 @@ def get_study_plan_json(status, mbti, budget, period, interest, preferred_countr
     """
     
     try:
-        # モデルを制限の緩い gemini-1.5-flash に固定
+        # モデル名を 'gemini-1.5-flash-latest' に変更して404を回避
         response = client.models.generate_content(
-            model='gemini-1.5-flash',
+            model='gemini-1.5-flash-latest',
             contents=prompt,
             config=types.GenerateContentConfig(
                 response_mime_type='application/json' 
