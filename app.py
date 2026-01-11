@@ -17,28 +17,28 @@ st.set_page_config(
 )
 
 # --- ここから診断用コード (st.set_page_config の直下に貼る) ---
-#st.markdown("### 🛠 緊急診断モード")
-#if st.button("今使えるモデル一覧を表示"):
-    try:
-        # 【修正】古い genai.configure ではなく、Client を作成します
-        client = genai.Client(api_key=GOOGLE_API_KEY)
+# st.markdown("### 🛠 緊急診断モード")
+# if st.button("今使えるモデル一覧を表示"):
+#     try:
+#         # 【修正】古い genai.configure ではなく、Client を作成します
+#         client = genai.Client(api_key=GOOGLE_API_KEY)
         
-        # 【修正】client経由でモデルリストを取得します
-        # config=None で全モデルを取得し、名前だけ抽出します
-        models = client.models.list()
+#         # 【修正】client経由でモデルリストを取得します
+#         # config=None で全モデルを取得し、名前だけ抽出します
+#         models = client.models.list()
         
-        found_models = []
-        for m in models:
-            # 新しいSDKでは m.name がモデル名を保持しています
-            found_models.append(m.name)
+#         found_models = []
+#         for m in models:
+#             # 新しいSDKでは m.name がモデル名を保持しています
+#             found_models.append(m.name)
         
-        st.success("✅ API接続成功！ (New SDK)")
-        st.text("▼ 利用可能なモデル一覧:")
-        st.code("\n".join(found_models))
+#         st.success("✅ API接続成功！ (New SDK)")
+#         st.text("▼ 利用可能なモデル一覧:")
+#         st.code("\n".join(found_models))
         
-    except Exception as e:
-        st.error(f"❌ 接続エラー: {e}")
-st.markdown("---")
+#     except Exception as e:
+#         st.error(f"❌ 接続エラー: {e}")
+# st.markdown("---")
 # --- 診断用コード終わり ---
 
 # --- URLパラメータから初期値を取得する関数 ---
@@ -325,6 +325,7 @@ if st.button("✨ ベストなプランを生成する"):
                     </button>
                 </div>
                 """, unsafe_allow_html=True)
+
 
 
 
