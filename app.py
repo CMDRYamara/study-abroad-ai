@@ -1,16 +1,12 @@
 import streamlit as st
-import google.generativeai as genai # ←ここを変更しました（安定版）
+from google import genai
+from google.genai import types
 import json
 import urllib.parse
-import os
 
 # --- 設定 ---
 # 本番環境では st.secrets を使用
-# ローカルテスト用: APIキーがない場合の安全策
-try:
-    GOOGLE_API_KEY = st.secrets["GOOGLE_API_KEY"]
-except:
-    GOOGLE_API_KEY = "ここにAPIキーを入力"
+GOOGLE_API_KEY = st.secrets["GOOGLE_API_KEY"]
 
 # ページ設定
 st.set_page_config(
@@ -19,27 +15,6 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="collapsed"
 )
-
-# --- ここから診断用コード (st.set_page_config の直下に貼る) ---
-st.markdown("### 🛠 緊急診断モード")
-if st.button("今使えるモデル一覧を表示"):
-    try:
-        genai.configure(api_key=GOOGLE_API_KEY)
-        models = genai.list_models()
-        
-        found_models = []
-        for m in models:
-            if 'generateContent' in m.supported_generation_methods:
-                found_models.append(m.name)
-        
-        st.success("✅ API接続成功！")
-        st.text("▼ 利用可能なモデル一覧:")
-        st.code("\n".join(found_models))
-    except Exception as e:
-        st.error(f"❌ 接続エラー: {e}")
-st.markdown("---")
-# --- 診断用コード終わり ---
-
 
 # --- URLパラメータから初期値を取得する関数 ---
 def get_params():
@@ -61,99 +36,65 @@ st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700&display=swap');
     
-    /* === ベーススタイル（強制ライトモード） === */
     html, body, [class*="css"] {
         font-family: 'M PLUS Rounded 1c', sans-serif;
-        background-color: #f8f9fa !important;
-        color: #333333 !important;
+        background-color: #f8f9fa;
     }
-    
-    /* 不要なヘッダー・フッター削除 */
-    header, footer {visibility: hidden;}
-    .block-container {
-        padding-top: 1rem;
-        padding-bottom: 5rem;
-    }
-
-    /* === ヒーローセクション === */
     .hero {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         padding: 40px 20px;
         border-radius: 15px;
-        color: white !important;
+        color: white;
         text-align: center;
         margin-bottom: 30px;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
     }
-    .hero h1 { font-size: 2.5rem; font-weight: 700; color: white !important; margin: 0; }
-    .hero p { color: rgba(255,255,255,0.9) !important; }
+    .hero h1 { font-size: 2.5rem; font-weight: 700; color: white; margin: 0; }
     
-    /* === カードデザイン === */
     .card {
         background: white; padding: 25px; border-radius: 15px;
         box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 20px;
         color: #333; transition: transform 0.2s;
     }
+    .card:hover { transform: translateY(-2px); }
     .card-title {
         color: #764ba2; font-size: 1.2rem; font-weight: bold;
         margin-bottom: 15px; display: flex; align-items: center; gap: 10px;
         border-bottom: 2px solid #f0f0f0; padding-bottom: 10px;
     }
-    /* カード内の文字色を強制的に黒にする */
-    .card h1, .card h2, .card h3, .card h4, .card p, .card li, .card span, .card div {
-        color: #333333;
-    }
     
-    /* === 【重要】入力フォームの視認性改善 === */
-    .stSelectbox label, .stTextInput label {
-        color: #333333 !important;
-        font-weight: bold;
-    }
-    div[data-baseweb="select"] > div, 
-    div[data-baseweb="input"] > div {
-        background-color: #ffffff !important;
-        color: #333333 !important;
-        border: 1px solid #d1d5db !important;
-        border-radius: 8px !important;
-    }
-    input[type="text"], div[data-baseweb="select"] span {
-        color: #333333 !important;
-    }
-    ul[data-baseweb="menu"] {
-        background-color: #ffffff !important;
-    }
-    li[data-baseweb="option"] {
-        color: #333333 !important;
-    }
-
+    /* テキスト色の強制 */
+    h1, h2, h3, p, li, span, div { color: #333; }
+    .hero h1, .hero p { color: white !important; }
+    .stButton>button { color: white !important; }
+    
     /* ボタンスタイル */
     .stButton>button {
         width: 100%;
         background: linear-gradient(90deg, #ff758c 0%, #ff7eb3 100%);
         border: none; padding: 15px; border-radius: 30px;
-        color: white !important;
         font-weight: bold; font-size: 1.1rem;
         box-shadow: 0 4px 15px rgba(255, 118, 136, 0.4);
     }
-    
     .tag {
         display: inline-block; background: #eef2ff; color: #667eea !important;
         padding: 4px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: bold; margin-right: 5px;
     }
     
+    /* 金額の内訳テーブル */
     .cost-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-    .cost-table th, .cost-table td { border-bottom: 1px solid #eee; padding: 8px; text-align: left; font-size: 0.95rem; color: #333; }
+    .cost-table th, .cost-table td { border-bottom: 1px solid #eee; padding: 8px; text-align: left; font-size: 0.95rem; }
+    .cost-table th { color: #666; font-size: 0.85rem; }
+    .total-row { font-weight: bold; color: #764ba2; }
     </style>
 """, unsafe_allow_html=True)
 
-# --- AIロジック (Gemini 1.5 Flash - google-generativeai版) ---
+# --- AIロジック (Gemini 2.5 Flash固定) ---
 def get_study_plan_json(status, mbti, budget, period, interest, preferred_country):
-    if not GOOGLE_API_KEY or GOOGLE_API_KEY == "ここにAPIキーを入力":
-        st.error("APIキーが設定されていません。コード内の `GOOGLE_API_KEY` を確認してください。")
+    if not GOOGLE_API_KEY:
+        st.error("APIキーが設定されていません。")
         return None
 
-    # API設定（ここを修正しました）
-    genai.configure(api_key=GOOGLE_API_KEY)
+    client = genai.Client(api_key=GOOGLE_API_KEY)
     
     # 任意の国指定がある場合の処理
     country_instruction = f"ユーザーの希望により、必ず「{preferred_country}」でのプランを作成してください。" if preferred_country else "条件に最適な国を選定してください。"
@@ -171,7 +112,7 @@ def get_study_plan_json(status, mbti, budget, period, interest, preferred_countr
     ・国指定: {preferred_country if preferred_country else "なし"}
 
     【出力要件】
-    以下のJSONスキーマに従って出力してください。Markdownのコードブロック（```json）は含めず、純粋なJSONテキストのみを返してください。
+    以下のJSONスキーマに従って出力してください。
     特に「金額の根拠」と「ロードマップ」は具体的に記述すること。
     
     {{
@@ -207,18 +148,17 @@ def get_study_plan_json(status, mbti, budget, period, interest, preferred_countr
     """
     
     try:
-        # モデルの初期化（ここを修正しました）
-        model = genai.GenerativeModel(
-            model_name='gemini-2.5-flash-lite',
-            generation_config={"response_mime_type": "application/json"}
+        # Gemini 2.5 Flashを指定
+        response = client.models.generate_content(
+            model='gemini-2.5-flash',
+            contents=prompt,
+            config=types.GenerateContentConfig(
+                response_mime_type='application/json' 
+            )
         )
-
-        response = model.generate_content(prompt)
-        
         return json.loads(response.text)
     except Exception as e:
-        # エラーが発生した場合、画面に詳細を表示
-        st.error(f"AIエラー: {e}")
+        st.error(f"エラーが発生しました: {e}")
         return None
 
 # --- UI構築 ---
@@ -237,26 +177,13 @@ st.markdown('<div class="card-title">🔍 あなたの希望を教えてくだ�
 
 col1, col2, col3 = st.columns(3)
 
-# セレクトボックスの選択肢リスト
-list_status = ["大学生・大学院生", "高校生", "中学生", "社会人", "その他"]
-list_mbti = ["わからない", "INTJ", "INTP", "ENTJ", "ENTP", "INFJ", "INFP", "ENFJ", "ENFP", "ISTJ", "ISFJ", "ESTJ", "ESFJ", "ISTP", "ISFP", "ESTP", "ESFP"]
-list_period = ["短期（1-2週間）", "1-3ヶ月", "半年", "1年", "2年以上"]
-list_budget = ["50万円以下", "50-100万円", "100-200万円", "潤沢"]
-
-# URLパラメータからインデックスを取得（安全策）
-def get_index(options, value):
-    try:
-        return options.index(value)
-    except ValueError:
-        return 0
-
 with col1:
-    status = st.selectbox("現在の立場", list_status, index=get_index(list_status, default_values["status"]))
-    mbti = st.selectbox("MBTIタイプ", list_mbti, index=get_index(list_mbti, default_values["mbti"]))
+    status = st.selectbox("現在の立場", ["大学生・大学院生", "高校生", "中学生", "社会人", "その他"], index=["大学生・大学院生", "高校生", "中学生", "社会人", "その他"].index(default_values["status"]) if default_values["status"] in ["大学生・大学院生", "高校生", "中学生", "社会人", "その他"] else 0)
+    mbti = st.selectbox("MBTIタイプ", ["わからない", "INTJ", "INTP", "ENTJ", "ENTP", "INFJ", "INFP", "ENFJ", "ENFP", "ISTJ", "ISFJ", "ESTJ", "ESFJ", "ISTP", "ISFP", "ESTP", "ESFP"], index=["わからない", "INTJ", "INTP", "ENTJ", "ENTP", "INFJ", "INFP", "ENFJ", "ENFP", "ISTJ", "ISFJ", "ESTJ", "ESFJ", "ISTP", "ISFP", "ESTP", "ESFP"].index(default_values["mbti"]) if default_values["mbti"] in ["わからない", "INTJ", "INTP", "ENTJ", "ENTP", "INFJ", "INFP", "ENFJ", "ENFP", "ISTJ", "ISFJ", "ESTJ", "ESFJ", "ISTP", "ISFP", "ESTP", "ESFP"] else 0)
 
 with col2:
-    period = st.selectbox("期間", list_period, index=get_index(list_period, default_values["period"]))
-    budget = st.selectbox("予算", list_budget, index=get_index(list_budget, default_values["budget"]))
+    period = st.selectbox("期間", ["短期（1-2週間）", "1-3ヶ月", "半年", "1年", "2年以上"], index=["短期（1-2週間）", "1-3ヶ月", "半年", "1年", "2年以上"].index(default_values["period"]) if default_values["period"] in ["短期（1-2週間）", "1-3ヶ月", "半年", "1年", "2年以上"] else 2)
+    budget = st.selectbox("予算", ["50万円以下", "50-100万円", "100-200万円", "潤沢"], index=["50万円以下", "50-100万円", "100-200万円", "潤沢"].index(default_values["budget"]) if default_values["budget"] in ["50万円以下", "50-100万円", "100-200万円", "潤沢"] else 2)
 
 with col3:
     interest = st.text_input("興味のあること", value=default_values["interest"], placeholder="例：カフェ, K-POP, IT")
@@ -269,7 +196,7 @@ if st.button("✨ ベストなプランを生成する"):
     if not interest:
         st.error("AIがプランを考えるために、「興味のあること」だけは教えてください！")
     else:
-        # URLパラメータを更新
+        # URLパラメータを更新（シェア用）
         st.query_params["status"] = status
         st.query_params["mbti"] = mbti
         st.query_params["period"] = period
@@ -277,7 +204,7 @@ if st.button("✨ ベストなプランを生成する"):
         st.query_params["interest"] = interest
         st.query_params["preferred_country"] = preferred_country
 
-        with st.spinner("AIが、最新の現地情報を分析中..."):
+        with st.spinner("Gemini 2.5 Flashが、最新の現地情報を分析中..."):
             data = get_study_plan_json(status, mbti, budget, period, interest, preferred_country)
             
             if data:
@@ -292,8 +219,9 @@ if st.button("✨ ベストなプランを生成する"):
                 """, unsafe_allow_html=True)
 
                 # --- PLAN A メインカード ---
+                # 動的画像の生成 (Pollinations AIを使用。登録不要で使えるAPI)
                 image_keyword = plan_a.get('image_keyword', 'travel')
-                image_url = f"[https://image.pollinations.ai/prompt/scenic%20photo%20of%20](https://image.pollinations.ai/prompt/scenic%20photo%20of%20){plan_a['country']}%20{image_keyword}%20atmosphere?width=800&height=400&nologo=true"
+                image_url = f"https://image.pollinations.ai/prompt/scenic%20photo%20of%20{plan_a['country']}%20{image_keyword}%20atmosphere?width=800&height=400&nologo=true"
                 
                 st.markdown(f"""
                 <div class="card" style="border-top: 5px solid #ff758c; padding:0; overflow:hidden;">
@@ -351,24 +279,15 @@ if st.button("✨ ベストなプランを生成する"):
                 # --- シェア & コンバージョン ---
                 st.markdown("---")
                 
-                # シェア用URL生成
-                query_string = urllib.parse.urlencode({
-                    "status": status,
-                    "mbti": mbti,
-                    "period": period,
-                    "budget": budget,
-                    "interest": interest,
-                    "preferred_country": preferred_country
-                })
-                
+                # シェア機能（URLコピー）
+                share_url = f"https://あなたのアプリURL.streamlit.app/?status={urllib.parse.quote(status)}&interest={urllib.parse.quote(interest)}..." # 実際は現在のURL
                 st.markdown("""
                 <div style="text-align:center; margin-bottom:20px;">
-                    <p style="color:#666;">👇 友達にこのプランをシェアするためのURLパラメータ</p>
-                    <small>※あなたのアプリのURLの後ろに、以下をコピーして貼り付けて送ってください</small>
+                    <p style="color:#666;">👇 このプランを友達や親にシェアしよう（URLをコピー）</p>
                 </div>
                 """, unsafe_allow_html=True)
-                
-                st.code(f"?{query_string}", language="text")
+                # 現在のURLパラメータを含んだURLを表示（ローカルではlocalhostになります）
+                st.code(f"https://share.streamlit.io/user/repo?status={status}&budget={budget}...", language="text")
 
                 # コンバージョン
                 st.markdown(f"""
@@ -379,14 +298,6 @@ if st.button("✨ ベストなプランを生成する"):
                     </button>
                 </div>
                 """, unsafe_allow_html=True)
-
-
-
-
-
-
-
-
 
 
 
