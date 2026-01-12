@@ -218,7 +218,9 @@ def get_study_plan_json(status, mbti, budget, period, interest, preferred_countr
     
     try:
         response = client.models.generate_content(
-            model='gemini-2.0-flash', # 最新モデル推奨
+            model=#"gemini-3-flash-preview",
+            'gemini-2.5-flash-preview-09-2025',
+            #'gemini-2.5-flash-lite-preview-09-2025',
             contents=prompt,
             config=types.GenerateContentConfig(
                 response_mime_type='application/json' 
@@ -362,3 +364,4 @@ if st.button("✨ ベストなプランを生成する"):
                     </button>
                 </div>
                 """, unsafe_allow_html=True)
+
