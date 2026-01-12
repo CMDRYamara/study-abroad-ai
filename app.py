@@ -10,7 +10,7 @@ GOOGLE_API_KEY = st.secrets["GOOGLE_API_KEY"]
 
 # ページ設定
 st.set_page_config(
-    page_title="DreamRoute | AI留学プランナー",
+    page_title="DreamRoute | AI留学プランナー",
     page_icon="✈️",
     layout="wide",
     initial_sidebar_state="collapsed"
