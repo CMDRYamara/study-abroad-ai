@@ -104,16 +104,20 @@ st.markdown("""
         color: #333333;
     }
     
-    /* === 【重要】入力フォームの視認性改善 === */
-    /* ここが修正の肝です。スマホのダークモードでも強制的に白背景・黒文字にします */
+    /* === 【重要】入力フォームの完全修正（ラベル含む） === */
     
-    /* ラベル（「予算」などの文字） */
-    .stSelectbox label, .stTextInput label {
+    /* 1. ラベル（「現在の立場」「期間」などの文字）を強制的に黒にする */
+    /* Streamlitのバージョンや構造が変わっても対応できるように複数の指定を入れます */
+    label, 
+    .stSelectbox label, 
+    .stTextInput label, 
+    div[data-testid="stWidgetLabel"] p,
+    div[data-testid="stWidgetLabel"] {
         color: #333333 !important;
-        font-weight: bold;
+        font-weight: bold !important;
     }
     
-    /* 入力ボックス本体（背景白、文字黒、枠線グレー） */
+    /* 2. 入力ボックス本体（背景白、文字黒、枠線グレー） */
     div[data-baseweb="select"] > div, 
     div[data-baseweb="input"] > div {
         background-color: #ffffff !important;
@@ -122,12 +126,15 @@ st.markdown("""
         border-radius: 8px !important;
     }
     
-    /* 入力中の文字色 */
-    input[type="text"], div[data-baseweb="select"] span {
+    /* 3. 入力中の文字色・プレースホルダー */
+    input[type="text"] {
+        color: #333333 !important;
+    }
+    div[data-baseweb="select"] span {
         color: #333333 !important;
     }
     
-    /* ドロップダウンメニューの中身（選択肢一覧） */
+    /* 4. ドロップダウンメニュー（選択肢一覧） */
     ul[data-baseweb="menu"] {
         background-color: #ffffff !important;
     }
@@ -137,6 +144,11 @@ st.markdown("""
     /* 選択肢の文字色 */
     li[data-baseweb="option"] div {
         color: #333333 !important; 
+    }
+    
+    /* 5. アイコンの色（▼など） */
+    svg {
+        fill: #666666 !important;
     }
 
     /* ボタンスタイル */
@@ -371,6 +383,7 @@ if st.button("✨ ベストなプランを生成する"):
                     </button>
                 </div>
                 """, unsafe_allow_html=True)
+
 
 
 
