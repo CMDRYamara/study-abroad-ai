@@ -6,7 +6,11 @@ import urllib.parse
 
 # --- 設定 ---
 # 本番環境では st.secrets を使用
-GOOGLE_API_KEY = st.secrets["GOOGLE_API_KEY"]
+# ローカルでテストする場合は、ここに直接APIキーを入れるか、secrets.tomlを作成してください
+try:
+    GOOGLE_API_KEY = st.secrets["GOOGLE_API_KEY"]
+except:
+    GOOGLE_API_KEY = "ここにAPIキーを入力(ローカルテスト用)"
 
 # ページ設定
 st.set_page_config(
@@ -15,31 +19,6 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="collapsed"
 )
-
-# --- ここから診断用コード (st.set_page_config の直下に貼る) ---
-# st.markdown("### 🛠 緊急診断モード")
-# if st.button("今使えるモデル一覧を表示"):
-#     try:
-#         # 【修正】古い genai.configure ではなく、Client を作成します
-#         client = genai.Client(api_key=GOOGLE_API_KEY)
-        
-#         # 【修正】client経由でモデルリストを取得します
-#         # config=None で全モデルを取得し、名前だけ抽出します
-#         models = client.models.list()
-        
-#         found_models = []
-#         for m in models:
-#             # 新しいSDKでは m.name がモデル名を保持しています
-#             found_models.append(m.name)
-        
-#         st.success("✅ API接続成功！ (New SDK)")
-#         st.text("▼ 利用可能なモデル一覧:")
-#         st.code("\n".join(found_models))
-        
-#     except Exception as e:
-#         st.error(f"❌ 接続エラー: {e}")
-# st.markdown("---")
-# --- 診断用コード終わり ---
 
 # --- URLパラメータから初期値を取得する関数 ---
 def get_params():
@@ -57,25 +36,24 @@ def get_params():
 default_values = get_params()
 
 # --- デザイン(CSS)の注入 ---
+# Code 1のダークモード基盤 + Code 2のカードデザイン(白)を融合
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700&display=swap');
     
-    /* === ベーススタイル（強制ダークモード化） === */
+    /* === ベーススタイル（Code 1: 強制ダークモード化） === */
     html, body, [class*="css"] {
         font-family: 'M PLUS Rounded 1c', sans-serif;
-        background-color: #0E1117 !important; /* 全体の背景を黒に */
-        color: #FAFAFA !important; /* 全体の文字を白に */
+        background-color: #0E1117 !important; /* 背景黒 */
+        color: #FAFAFA !important; /* 文字白 */
     }
     
-    /* 不要なヘッダー・フッター削除 */
-    header, footer {visibility: hidden;}
     .block-container {
         padding-top: 1rem;
         padding-bottom: 5rem;
     }
 
-    /* === ヒーローセクション === */
+    /* === ヒーローセクション（Code 1仕様） === */
     .hero {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         padding: 40px 20px;
@@ -88,76 +66,49 @@ st.markdown("""
     .hero h1 { font-size: 2.5rem; font-weight: 700; color: white !important; margin: 0; }
     .hero p { color: rgba(255,255,255,0.9) !important; }
     
-    /* === カードデザイン（ダークモード仕様） === */
-    .card {
-        background: #262730; /* ダークグレーの背景 */
+    /* === 入力フォーム用カード（Code 1仕様: ダーク背景） === */
+    .input-card {
+        background: #262730;
         padding: 25px; 
         border-radius: 15px;
         box-shadow: 0 4px 6px rgba(0,0,0,0.3); 
         margin-bottom: 20px;
-        color: #FAFAFA; /* カード内の文字は白 */
-        border: 1px solid #444; /* 薄い枠線 */
-        transition: transform 0.2s;
+        color: #FAFAFA;
+        border: 1px solid #444;
     }
-    .card-title {
-        color: #a688fa; /* タイトルは少し明るい紫に */
+    .input-card-title {
+        color: #a688fa;
         font-size: 1.2rem; font-weight: bold;
         margin-bottom: 15px; display: flex; align-items: center; gap: 10px;
         border-bottom: 1px solid #444; padding-bottom: 10px;
     }
-    /* カード内の見出しなどを白くする */
-    .card h1, .card h2, .card h3, .card h4, .card p, .card li, .card span, .card div {
-        color: #FAFAFA;
-    }
-    
-    /* === 【重要】入力フォームの修正（ダークモード仕様） === */
-    
-    /* 1. ラベル（「現在の立場」など）を薄い白（グレー）固定にする */
+
+    /* === 入力フォーム部品のスタイル（Code 1: ダーク・グレーラベル） === */
+    /* ラベルを薄い白（グレー）固定 */
     label, 
     .stSelectbox label, 
     .stTextInput label, 
     div[data-testid="stWidgetLabel"] p,
     div[data-testid="stWidgetLabel"] {
-        color: #CCCCCC !important; /* 薄い白（グレー） */
+        color: #CCCCCC !important;
         font-weight: bold !important;
     }
     
-    /* 2. 入力ボックス本体（背景ダーク、文字白） */
+    /* 入力ボックス本体 */
     div[data-baseweb="select"] > div, 
     div[data-baseweb="input"] > div {
-        background-color: #0E1117 !important; /* 暗い背景 */
-        color: #FAFAFA !important; /* 白文字 */
-        border: 1px solid #444 !important; /* グレーの枠線 */
+        background-color: #0E1117 !important;
+        color: #FAFAFA !important;
+        border: 1px solid #444 !important;
         border-radius: 8px !important;
     }
-    
-    /* 3. 入力中の文字色 */
-    input[type="text"] {
-        color: #FAFAFA !important;
-    }
-    div[data-baseweb="select"] span {
-        color: #FAFAFA !important;
-    }
-    
-    /* 4. ドロップダウンメニュー（選択肢一覧） */
-    ul[data-baseweb="menu"] {
-        background-color: #262730 !important;
-        border: 1px solid #444 !important;
-    }
-    li[data-baseweb="option"] {
-        color: #FAFAFA !important;
-    }
-    /* 選択肢の文字色 */
-    li[data-baseweb="option"] div {
-        color: #FAFAFA !important; 
-    }
-    
-    /* 5. アイコンの色（▼など） */
-    svg {
-        fill: #FAFAFA !important;
-    }
+    input[type="text"] { color: #FAFAFA !important; }
+    div[data-baseweb="select"] span { color: #FAFAFA !important; }
+    ul[data-baseweb="menu"] { background-color: #262730 !important; border: 1px solid #444 !important; }
+    li[data-baseweb="option"] { color: #FAFAFA !important; }
+    svg { fill: #FAFAFA !important; }
 
-    /* ボタンスタイル */
+    /* === ボタン（共通） === */
     .stButton>button {
         width: 100%;
         background: linear-gradient(90deg, #ff758c 0%, #ff7eb3 100%);
@@ -166,14 +117,47 @@ st.markdown("""
         font-weight: bold; font-size: 1.1rem;
         box-shadow: 0 4px 15px rgba(255, 118, 136, 0.4);
     }
+
+    /* =========================================================
+       === 結果表示用カード（Code 2仕様: 白背景・黒文字） === 
+       ========================================================= */
+    .result-card {
+        background: white !important; /* 白背景 */
+        padding: 25px;
+        border-radius: 15px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        margin-bottom: 20px;
+        color: #333 !important; /* 黒文字 */
+        transition: transform 0.2s;
+    }
+    .result-card:hover { transform: translateY(-2px); }
     
+    /* 結果カード内の文字色を強制的に黒にする（全体が白文字設定のため上書き必須） */
+    .result-card h1, .result-card h2, .result-card h3, 
+    .result-card p, .result-card li, .result-card span, .result-card div,
+    .result-card td, .result-card th {
+        color: #333 !important;
+    }
+
+    .result-card-title {
+        color: #764ba2 !important; /* タイトルは紫 */
+        font-size: 1.2rem; font-weight: bold;
+        margin-bottom: 15px; display: flex; align-items: center; gap: 10px;
+        border-bottom: 2px solid #f0f0f0; padding-bottom: 10px;
+    }
+
     .tag {
-        display: inline-block; background: #333; color: #a688fa !important;
-        padding: 4px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: bold; margin-right: 5px; border: 1px solid #a688fa;
+        display: inline-block; background: #eef2ff !important; color: #667eea !important;
+        padding: 4px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: bold; margin-right: 5px;
+        border: none !important;
     }
     
     .cost-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-    .cost-table th, .cost-table td { border-bottom: 1px solid #444; padding: 8px; text-align: left; font-size: 0.95rem; color: #FAFAFA; }
+    .cost-table th, .cost-table td { 
+        border-bottom: 1px solid #eee; padding: 8px; text-align: left; font-size: 0.95rem; color: #333 !important;
+    }
+    .cost-table th { color: #666 !important; font-size: 0.85rem; }
+
     </style>
 """, unsafe_allow_html=True)
 
@@ -185,9 +169,6 @@ def get_study_plan_json(status, mbti, budget, period, interest, preferred_countr
 
     client = genai.Client(api_key=GOOGLE_API_KEY)
     
-    # 任意の国指定がある場合の処理
-    country_instruction = f"ユーザーの希望により、必ず「{preferred_country}」でのプランを作成してください。" if preferred_country else "条件に最適な国を選定してください。"
-
     prompt = f"""
     あなたはZ世代に特化したプロの留学コンサルタントAIです。
     以下のユーザー条件に基づき、最高のプラン(Plan A)と、比較用の代替プラン(Plan B)を作成してください。
@@ -202,7 +183,6 @@ def get_study_plan_json(status, mbti, budget, period, interest, preferred_countr
 
     【出力要件】
     以下のJSONスキーマに従って出力してください。
-    特に「金額の根拠」と「ロードマップ」は具体的に記述すること。
     
     {{
         "catchphrase": "ワクワクする短いキャッチコピー",
@@ -213,23 +193,23 @@ def get_study_plan_json(status, mbti, budget, period, interest, preferred_countr
             "reason": "なぜここなのか（MBTIと興味に関連付けて）",
             "image_keyword": "このプランを表す英語の単語1つ（例: Cafe, Programming, Nature）",
             "cost_breakdown": [
-                {{"item": "学費", "amount": "約〇〇万円", "detail": "語学学校3ヶ月分として算出"}},
-                {{"item": "家賃", "amount": "約〇〇万円", "detail": "シェアハウス個室の相場"}},
-                {{"item": "食費・生活費", "amount": "約〇〇万円", "detail": "自炊中心の場合"}},
-                {{"item": "航空券・保険", "amount": "約〇〇万円", "detail": "LCC利用想定"}}
+                {{"item": "学費", "amount": "約〇〇万円", "detail": "詳細"}},
+                {{"item": "家賃", "amount": "約〇〇万円", "detail": "詳細"}},
+                {{"item": "食費・生活費", "amount": "約〇〇万円", "detail": "詳細"}},
+                {{"item": "航空券・保険", "amount": "約〇〇万円", "detail": "詳細"}}
             ],
-            "total_cost_comment": "この金額に収めるための具体的なアドバイス（プロの視点）",
+            "total_cost_comment": "この金額に収めるための具体的なアドバイス",
             "roadmap": [
-                {{"phase": "渡航前 (0-3ヶ月)", "action": "英語学習とビザ申請、〇〇の準備"}},
-                {{"phase": "1ヶ月目", "action": "ホームステイで生活に慣れる、〇〇に参加する"}},
-                {{"phase": "2-3ヶ月目", "action": "シェアハウスへ移動、現地の〇〇コミュニティに参加"}},
-                {{"phase": "帰国前", "action": "インターン等の成果まとめ、帰国後の就活準備"}}
+                {{"phase": "渡航前", "action": "アクション"}},
+                {{"phase": "1ヶ月目", "action": "アクション"}},
+                {{"phase": "2-3ヶ月目", "action": "アクション"}},
+                {{"phase": "帰国前", "action": "アクション"}}
             ]
         }},
         "plan_b": {{
             "country": "Plan Aとは違う国・都市",
             "emoji": "国旗",
-            "concept": "もう一つの可能性（少し視点を変えた提案）",
+            "concept": "もう一つの可能性",
             "reason": "なぜこちらの選択肢もありなのか"
         }},
         "mentor_promo": "先輩に相談するメリットを一言で"
@@ -237,12 +217,10 @@ def get_study_plan_json(status, mbti, budget, period, interest, preferred_countr
     """
     
     try:
-        # 固定
         response = client.models.generate_content(
-            model= #"gemini-3-flash-preview",
+            model=#"gemini-3-flash-preview",
             'gemini-2.5-flash-preview-09-2025',
             #'gemini-2.5-flash-lite-preview-09-2025',
-            contents=prompt,
             config=types.GenerateContentConfig(
                 response_mime_type='application/json' 
             )
@@ -254,7 +232,7 @@ def get_study_plan_json(status, mbti, budget, period, interest, preferred_countr
 
 # --- UI構築 ---
 
-# ヒーローセクション
+# ヒーローセクション（Code 1のデザイン）
 st.markdown("""
     <div class="hero">
         <h1>DreamRoute ✈️</h1>
@@ -262,9 +240,9 @@ st.markdown("""
     </div>
 """, unsafe_allow_html=True)
 
-# 入力フォーム
-st.markdown('<div class="card">', unsafe_allow_html=True)
-st.markdown('<div class="card-title">🔍 あなたの希望を教えてください</div>', unsafe_allow_html=True)
+# 入力フォーム（Code 1のデザイン：ダークモード）
+st.markdown('<div class="input-card">', unsafe_allow_html=True)
+st.markdown('<div class="input-card-title">🔍 あなたの希望を教えてください</div>', unsafe_allow_html=True)
 
 col1, col2, col3 = st.columns(3)
 
@@ -287,7 +265,6 @@ if st.button("✨ ベストなプランを生成する"):
     if not interest:
         st.error("AIがプランを考えるために、「興味のあること」だけは教えてください！")
     else:
-        # URLパラメータを更新（シェア用）
         st.query_params["status"] = status
         st.query_params["mbti"] = mbti
         st.query_params["period"] = period
@@ -302,24 +279,24 @@ if st.button("✨ ベストなプランを生成する"):
                 plan_a = data['plan_a']
                 plan_b = data['plan_b']
 
-                # キャッチコピー
+                # キャッチコピー（ダーク背景に映える文字色）
                 st.markdown(f"""
                 <div style="text-align:center; margin: 30px 0;">
-                    <h2 style="color:#764ba2; margin-bottom:0;">{data['catchphrase']}</h2>
+                    <h2 style="color:#e0c3fc; margin-bottom:0; font-size: 2rem;">{data['catchphrase']}</h2>
                 </div>
                 """, unsafe_allow_html=True)
 
-                # --- PLAN A メインカード ---
-                # 動的画像の生成 (Pollinations AIを使用。登録不要で使えるAPI)
+                # --- PLAN A メインカード（Code 2仕様: 白背景・黒文字） ---
                 image_keyword = plan_a.get('image_keyword', 'travel')
                 image_url = f"https://image.pollinations.ai/prompt/scenic%20photo%20of%20{plan_a['country']}%20{image_keyword}%20atmosphere?width=800&height=400&nologo=true"
                 
+                # CSSクラス "result-card" を適用
                 st.markdown(f"""
-                <div class="card" style="border-top: 5px solid #ff758c; padding:0; overflow:hidden;">
+                <div class="result-card" style="border-top: 5px solid #ff758c; padding:0; overflow:hidden;">
                     <img src="{image_url}" style="width:100%; height:250px; object-fit:cover;">
                     <div style="padding:25px;">
-                        <h2 style="font-size:1.8rem;">{plan_a['emoji']} {plan_a['country']}：{plan_a['concept']}</h2>
-                        <p>{plan_a['reason']}</p>
+                        <h2 style="font-size:1.8rem; color:#333 !important;">{plan_a['emoji']} {plan_a['country']}：{plan_a['concept']}</h2>
+                        <p style="color:#555 !important;">{plan_a['reason']}</p>
                         <div style="margin-top:15px;">
                             <span class="tag">#{status}プラン</span>
                             <span class="tag">#PlanA</span>
@@ -328,64 +305,59 @@ if st.button("✨ ベストなプランを生成する"):
                 </div>
                 """, unsafe_allow_html=True)
 
-                # --- 3カラム詳細情報 ---
+                # --- 3カラム詳細情報（Code 2仕様: 白背景・黒文字） ---
                 col_c1, col_c2, col_c3 = st.columns(3)
                 
                 # 金額試算
                 with col_c1:
-                    rows = "".join([f"<tr><td>{item['item']}</td><td>{item['amount']}</td></tr><tr><td colspan='2' style='color:#888; font-size:0.8em; border-bottom:1px solid #eee;'>└ {item['detail']}</td></tr>" for item in plan_a['cost_breakdown']])
+                    rows = "".join([f"<tr><td>{item['item']}</td><td>{item['amount']}</td></tr><tr><td colspan='2' style='color:#888 !important; font-size:0.8em; border-bottom:1px solid #eee;'>└ {item['detail']}</td></tr>" for item in plan_a['cost_breakdown']])
                     st.markdown(f"""
-                    <div class="card" style="height: 100%;">
-                        <div class="card-title">💰 費用のリアルな内訳</div>
+                    <div class="result-card" style="height: 100%;">
+                        <div class="result-card-title">💰 費用のリアルな内訳</div>
                         <table class="cost-table">
                             {rows}
                         </table>
-                        <p style="margin-top:10px; font-size:0.9em; color:#764ba2;"><b>💡Pro Advice:</b><br>{plan_a['total_cost_comment']}</p>
+                        <p style="margin-top:10px; font-size:0.9em; color:#764ba2 !important;"><b>💡Pro Advice:</b><br>{plan_a['total_cost_comment']}</p>
                     </div>
                     """, unsafe_allow_html=True)
 
                 # ロードマップ
                 with col_c2:
-                    roadmap_html = "".join([f"<li style='margin-bottom:10px;'><b>{step['phase']}</b><br>{step['action']}</li>" for step in plan_a['roadmap']])
+                    roadmap_html = "".join([f"<li style='margin-bottom:10px; color:#333 !important;'><b>{step['phase']}</b><br>{step['action']}</li>" for step in plan_a['roadmap']])
                     st.markdown(f"""
-                    <div class="card" style="height: 100%;">
-                        <div class="card-title">📅 成功へのロードマップ</div>
+                    <div class="result-card" style="height: 100%;">
+                        <div class="result-card-title">📅 成功へのロードマップ</div>
                         <ul style="padding-left:20px; line-height:1.5; font-size:0.95rem;">{roadmap_html}</ul>
                     </div>
                     """, unsafe_allow_html=True)
 
                 # 類似プラン (Plan B)
                 with col_c3:
-                    # 修正: background-color: #fdfdfd を削除し、borderの色を濃いグレーに変更
-                    # 修正: タイトルの文字色(#666)を明るい色(#a688fa)に変更
                     st.markdown(f"""
-                    <div class="card" style="height: 100%; border: 2px dashed #555;">
-                        <div class="card-title" style="color:#a688fa;">🤔 他の選択肢 (Plan B)</div>
-                        <h3>{plan_b['emoji']} {plan_b['country']}</h3>
-                        <p style="font-weight:bold;">{plan_b['concept']}</p>
-                        <p style="font-size:0.9rem;">{plan_b['reason']}</p>
-                        <hr style="border-top: 1px solid #444;">
-                        <p style="font-size:0.85rem; color:#ccc;">「こっちも気になる」と思ったら、チャットで相談してみよう。</p>
+                    <div class="result-card" style="height: 100%; background-color:#fdfdfd !important; border: 2px dashed #ddd;">
+                        <div class="result-card-title" style="color:#666 !important; border-color:#eee;">🤔 他の選択肢 (Plan B)</div>
+                        <h3 style="color:#333 !important;">{plan_b['emoji']} {plan_b['country']}</h3>
+                        <p style="font-weight:bold; color:#333 !important;">{plan_b['concept']}</p>
+                        <p style="font-size:0.9rem; color:#555 !important;">{plan_b['reason']}</p>
+                        <hr style="border-top:1px solid #eee;">
+                        <p style="font-size:0.85rem; color:#888 !important;">「こっちも気になる」と思ったら、チャットで相談してみよう。</p>
                     </div>
                     """, unsafe_allow_html=True)
 
                 # --- シェア & コンバージョン ---
                 st.markdown("---")
                 
-                # シェア機能（URLコピー）
-                share_url = f"https://あなたのアプリURL.streamlit.app/?status={urllib.parse.quote(status)}&interest={urllib.parse.quote(interest)}..." # 実際は現在のURL
                 st.markdown("""
                 <div style="text-align:center; margin-bottom:20px;">
-                    <p style="color:#666;">👇 このプランを友達や親にシェアしよう（URLをコピー）</p>
+                    <p style="color:#ccc !important;">👇 このプランを友達や親にシェアしよう（URLをコピー）</p>
                 </div>
                 """, unsafe_allow_html=True)
-                # 現在のURLパラメータを含んだURLを表示（ローカルではlocalhostになります）
+                
                 st.code(f"https://share.streamlit.io/user/repo?status={status}&budget={budget}...", language="text")
 
-                # コンバージョン
                 st.markdown(f"""
                 <div style="background: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%); padding: 30px; border-radius: 15px; text-align: center;">
-                    <h3 style="color: #fff;">{data['mentor_promo']}</h3>
+                    <h3 style="color: #fff !important;">{data['mentor_promo']}</h3>
                     <button style="background: white; color: #764ba2; border: none; padding: 12px 30px; border-radius: 25px; font-weight: bold; margin-top: 10px; cursor: pointer;">
                         📅 {plan_a['country']}の先輩と話す (初回無料)
                     </button>
