@@ -356,14 +356,16 @@ if st.button("✨ ベストなプランを生成する"):
 
                 # 類似プラン (Plan B)
                 with col_c3:
+                    # 修正: background-color: #fdfdfd を削除し、borderの色を濃いグレーに変更
+                    # 修正: タイトルの文字色(#666)を明るい色(#a688fa)に変更
                     st.markdown(f"""
-                    <div class="card" style="height: 100%; background-color:#fdfdfd; border: 2px dashed #ddd;">
-                        <div class="card-title" style="color:#666;">🤔 他の選択肢 (Plan B)</div>
+                    <div class="card" style="height: 100%; border: 2px dashed #555;">
+                        <div class="card-title" style="color:#a688fa;">🤔 他の選択肢 (Plan B)</div>
                         <h3>{plan_b['emoji']} {plan_b['country']}</h3>
                         <p style="font-weight:bold;">{plan_b['concept']}</p>
                         <p style="font-size:0.9rem;">{plan_b['reason']}</p>
-                        <hr>
-                        <p style="font-size:0.85rem; color:#888;">「こっちも気になる」と思ったら、チャットで相談してみよう。</p>
+                        <hr style="border-top: 1px solid #444;">
+                        <p style="font-size:0.85rem; color:#ccc;">「こっちも気になる」と思ったら、チャットで相談してみよう。</p>
                     </div>
                     """, unsafe_allow_html=True)
 
@@ -389,6 +391,7 @@ if st.button("✨ ベストなプランを生成する"):
                     </button>
                 </div>
                 """, unsafe_allow_html=True)
+
 
 
 
