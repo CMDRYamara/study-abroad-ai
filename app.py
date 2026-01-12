@@ -157,11 +157,13 @@ st.markdown("""
     }
     .cost-table th { color: #666 !important; font-size: 0.85rem; }
 
-    /* クリックした時の枠線を赤ではなく「紫」にする設定 */
+    /* クリックした時に「ボヤッと発光」させる設定 */
     div[data-baseweb="select"] > div:focus-within, 
     div[data-baseweb="input"] > div:focus-within {
-        border-color: #a688fa !important;
-        box-shadow: 0 0 0 1px #a688fa !important;
+        border-color: #a688fa !important; /* ←ここを好きな色に変える */
+        /* 最後の「0 0 10px」の「10px」が光の広がり具合です */
+        box-shadow: 0 0 10px #a688fa !important; 
+        transition: box-shadow 0.2s ease-in-out; /* 光り方をふわっとさせる */
     }
     </style>
 """, unsafe_allow_html=True)
@@ -369,5 +371,6 @@ if st.button("✨ ベストなプランを生成する"):
                     </button>
                 </div>
                 """, unsafe_allow_html=True)
+
 
 
