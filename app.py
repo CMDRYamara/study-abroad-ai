@@ -160,7 +160,7 @@ st.markdown("""
     /* クリックした時に「ボヤッと発光」させる設定 */
     div[data-baseweb="select"] > div:focus-within, 
     div[data-baseweb="input"] > div:focus-within {
-        border-color: #a688fa !important; /* ←ここを好きな色に変える */
+        border-color: #00e5ff !important; /* ←ここを好きな色に変える */
         /* 最後の「0 0 10px」の「10px」が光の広がり具合です */
         box-shadow: 0 0 10px #a688fa !important; 
         transition: box-shadow 0.2s ease-in-out; /* 光り方をふわっとさせる */
@@ -371,6 +371,7 @@ if st.button("✨ ベストなプランを生成する"):
                     </button>
                 </div>
                 """, unsafe_allow_html=True)
+
 
 
 
