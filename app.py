@@ -36,7 +36,6 @@ def get_params():
 default_values = get_params()
 
 # --- デザイン(CSS)の注入 ---
-# Code 1のダークモード基盤 + Code 2のカードデザイン(白)を融合
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700&display=swap');
@@ -158,6 +157,12 @@ st.markdown("""
     }
     .cost-table th { color: #666 !important; font-size: 0.85rem; }
 
+    /* クリックした時の枠線を赤ではなく「紫」にする設定 */
+    div[data-baseweb="select"] > div:focus-within, 
+    div[data-baseweb="input"] > div:focus-within {
+        border-color: #a688fa !important;
+        box-shadow: 0 0 0 1px #a688fa !important;
+    }
     </style>
 """, unsafe_allow_html=True)
 
@@ -364,4 +369,5 @@ if st.button("✨ ベストなプランを生成する"):
                     </button>
                 </div>
                 """, unsafe_allow_html=True)
+
 
