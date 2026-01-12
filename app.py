@@ -362,11 +362,3 @@ if st.button("✨ ベストなプランを生成する"):
                     </button>
                 </div>
                 """, unsafe_allow_html=True)
-
-
-
-
-
-
-
-
