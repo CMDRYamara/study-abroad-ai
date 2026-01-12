@@ -113,7 +113,7 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# --- AIロジック (Gemini 2.5 Flash固定) ---
+# --- AIロジック---
 def get_study_plan_json(status, mbti, budget, period, interest, preferred_country):
     if not GOOGLE_API_KEY:
         st.error("APIキーが設定されていません。")
@@ -173,7 +173,7 @@ def get_study_plan_json(status, mbti, budget, period, interest, preferred_countr
     """
     
     try:
-        # Gemini 2.5 Flashを指定
+        # 固定
         response = client.models.generate_content(
             model= "gemini-3-flash-preview",
             #'gemini-2.5-flash-preview-09-2025',
@@ -325,3 +325,4 @@ if st.button("✨ ベストなプランを生成する"):
                     </button>
                 </div>
                 """, unsafe_allow_html=True)
+
