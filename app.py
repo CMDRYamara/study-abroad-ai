@@ -162,7 +162,7 @@ st.markdown("""
     div[data-baseweb="input"] > div:focus-within {
         border-color: #00e5ff !important; /* ←ここを好きな色に変える */
         /* 最後の「0 0 10px」の「10px」が光の広がり具合です */
-        box-shadow: 0 0 10px #a688fa !important; 
+        box-shadow: 0 0 6px #a688fa !important; 
         transition: box-shadow 0.2s ease-in-out; /* 光り方をふわっとさせる */
     }
     </style>
@@ -371,6 +371,7 @@ if st.button("✨ ベストなプランを生成する"):
                     </button>
                 </div>
                 """, unsafe_allow_html=True)
+
 
 
 
