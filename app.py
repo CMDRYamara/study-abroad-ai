@@ -61,55 +61,119 @@ st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700&display=swap');
     
+    /* === ベーススタイル（強制ダークモード化） === */
     html, body, [class*="css"] {
         font-family: 'M PLUS Rounded 1c', sans-serif;
-        background-color: #f8f9fa;
+        background-color: #0E1117 !important; /* 全体の背景を黒に */
+        color: #FAFAFA !important; /* 全体の文字を白に */
     }
+    
+    /* 不要なヘッダー・フッター削除 */
+    header, footer {visibility: hidden;}
+    .block-container {
+        padding-top: 1rem;
+        padding-bottom: 5rem;
+    }
+
+    /* === ヒーローセクション === */
     .hero {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         padding: 40px 20px;
         border-radius: 15px;
-        color: white;
+        color: white !important;
         text-align: center;
         margin-bottom: 30px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.3);
     }
-    .hero h1 { font-size: 2.5rem; font-weight: 700; color: white; margin: 0; }
+    .hero h1 { font-size: 2.5rem; font-weight: 700; color: white !important; margin: 0; }
+    .hero p { color: rgba(255,255,255,0.9) !important; }
     
+    /* === カードデザイン（ダークモード仕様） === */
     .card {
-        background: white; padding: 25px; border-radius: 15px;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 20px;
-        color: #333; transition: transform 0.2s;
+        background: #262730; /* ダークグレーの背景 */
+        padding: 25px; 
+        border-radius: 15px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.3); 
+        margin-bottom: 20px;
+        color: #FAFAFA; /* カード内の文字は白 */
+        border: 1px solid #444; /* 薄い枠線 */
+        transition: transform 0.2s;
     }
-    .card:hover { transform: translateY(-2px); }
     .card-title {
-        color: #764ba2; font-size: 1.2rem; font-weight: bold;
+        color: #a688fa; /* タイトルは少し明るい紫に */
+        font-size: 1.2rem; font-weight: bold;
         margin-bottom: 15px; display: flex; align-items: center; gap: 10px;
-        border-bottom: 2px solid #f0f0f0; padding-bottom: 10px;
+        border-bottom: 1px solid #444; padding-bottom: 10px;
+    }
+    /* カード内の見出しなどを白くする */
+    .card h1, .card h2, .card h3, .card h4, .card p, .card li, .card span, .card div {
+        color: #FAFAFA;
     }
     
-    /* テキスト色の強制 */
-    h1, h2, h3, p, li, span, div { color: #333; }
-    .hero h1, .hero p { color: white !important; }
-    .stButton>button { color: white !important; }
+    /* === 【重要】入力フォームの修正（ダークモード仕様） === */
     
+    /* 1. ラベル（「現在の立場」など）を薄い白（グレー）固定にする */
+    label, 
+    .stSelectbox label, 
+    .stTextInput label, 
+    div[data-testid="stWidgetLabel"] p,
+    div[data-testid="stWidgetLabel"] {
+        color: #CCCCCC !important; /* 薄い白（グレー） */
+        font-weight: bold !important;
+    }
+    
+    /* 2. 入力ボックス本体（背景ダーク、文字白） */
+    div[data-baseweb="select"] > div, 
+    div[data-baseweb="input"] > div {
+        background-color: #0E1117 !important; /* 暗い背景 */
+        color: #FAFAFA !important; /* 白文字 */
+        border: 1px solid #444 !important; /* グレーの枠線 */
+        border-radius: 8px !important;
+    }
+    
+    /* 3. 入力中の文字色 */
+    input[type="text"] {
+        color: #FAFAFA !important;
+    }
+    div[data-baseweb="select"] span {
+        color: #FAFAFA !important;
+    }
+    
+    /* 4. ドロップダウンメニュー（選択肢一覧） */
+    ul[data-baseweb="menu"] {
+        background-color: #262730 !important;
+        border: 1px solid #444 !important;
+    }
+    li[data-baseweb="option"] {
+        color: #FAFAFA !important;
+    }
+    /* 選択肢の文字色 */
+    li[data-baseweb="option"] div {
+        color: #FAFAFA !important; 
+    }
+    
+    /* 5. アイコンの色（▼など） */
+    svg {
+        fill: #FAFAFA !important;
+    }
+
     /* ボタンスタイル */
     .stButton>button {
         width: 100%;
         background: linear-gradient(90deg, #ff758c 0%, #ff7eb3 100%);
         border: none; padding: 15px; border-radius: 30px;
+        color: white !important;
         font-weight: bold; font-size: 1.1rem;
         box-shadow: 0 4px 15px rgba(255, 118, 136, 0.4);
     }
+    
     .tag {
-        display: inline-block; background: #eef2ff; color: #667eea !important;
-        padding: 4px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: bold; margin-right: 5px;
+        display: inline-block; background: #333; color: #a688fa !important;
+        padding: 4px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: bold; margin-right: 5px; border: 1px solid #a688fa;
     }
     
-    /* 金額の内訳テーブル */
     .cost-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-    .cost-table th, .cost-table td { border-bottom: 1px solid #eee; padding: 8px; text-align: left; font-size: 0.95rem; }
-    .cost-table th { color: #666; font-size: 0.85rem; }
-    .total-row { font-weight: bold; color: #764ba2; }
+    .cost-table th, .cost-table td { border-bottom: 1px solid #444; padding: 8px; text-align: left; font-size: 0.95rem; color: #FAFAFA; }
     </style>
 """, unsafe_allow_html=True)
 
@@ -292,14 +356,16 @@ if st.button("✨ ベストなプランを生成する"):
 
                 # 類似プラン (Plan B)
                 with col_c3:
+                    # 修正: background-color: #fdfdfd を削除し、borderの色を濃いグレーに変更
+                    # 修正: タイトルの文字色(#666)を明るい色(#a688fa)に変更
                     st.markdown(f"""
-                    <div class="card" style="height: 100%; background-color:#fdfdfd; border: 2px dashed #ddd;">
-                        <div class="card-title" style="color:#666;">🤔 他の選択肢 (Plan B)</div>
+                    <div class="card" style="height: 100%; border: 2px dashed #555;">
+                        <div class="card-title" style="color:#a688fa;">🤔 他の選択肢 (Plan B)</div>
                         <h3>{plan_b['emoji']} {plan_b['country']}</h3>
                         <p style="font-weight:bold;">{plan_b['concept']}</p>
                         <p style="font-size:0.9rem;">{plan_b['reason']}</p>
-                        <hr>
-                        <p style="font-size:0.85rem; color:#888;">「こっちも気になる」と思ったら、チャットで相談してみよう。</p>
+                        <hr style="border-top: 1px solid #444;">
+                        <p style="font-size:0.85rem; color:#ccc;">「こっちも気になる」と思ったら、チャットで相談してみよう。</p>
                     </div>
                     """, unsafe_allow_html=True)
 
@@ -325,5 +391,6 @@ if st.button("✨ ベストなプランを生成する"):
                     </button>
                 </div>
                 """, unsafe_allow_html=True)
+
 
 
