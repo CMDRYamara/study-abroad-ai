@@ -36,11 +36,12 @@ def get_params():
 default_values = get_params()
 
 # --- デザイン(CSS)の注入 ---
+# Code 1のダークモード基盤 + Code 2のカードデザイン(白)を融合
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700&display=swap');
     
-    /* === ベーススタイル === */
+    /* === ベーススタイル（Code 1: 強制ダークモード化） === */
     html, body, [class*="css"] {
         font-family: 'M PLUS Rounded 1c', sans-serif;
         background-color: #0E1117 !important; /* 背景黒 */
@@ -52,7 +53,7 @@ st.markdown("""
         padding-bottom: 5rem;
     }
 
-    /* === ヒーローセクション === */
+    /* === ヒーローセクション（Code 1仕様） === */
     .hero {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         padding: 40px 20px;
@@ -65,7 +66,7 @@ st.markdown("""
     .hero h1 { font-size: 2.5rem; font-weight: 700; color: white !important; margin: 0; }
     .hero p { color: rgba(255,255,255,0.9) !important; }
     
-    /* === 入力フォーム用カード === */
+    /* === 入力フォーム用カード（Code 1仕様: ダーク背景） === */
     .input-card {
         background: #262730;
         padding: 25px; 
@@ -82,8 +83,8 @@ st.markdown("""
         border-bottom: 1px solid #444; padding-bottom: 10px;
     }
 
-    /* === 入力フォーム部品のスタイル（修正：フォーカス時の色を指定） === */
-    /* ラベル */
+    /* === 入力フォーム部品のスタイル（Code 1: ダーク・グレーラベル） === */
+    /* ラベルを薄い白（グレー）固定 */
     label, 
     .stSelectbox label, 
     .stTextInput label, 
@@ -93,7 +94,7 @@ st.markdown("""
         font-weight: bold !important;
     }
     
-    /* 入力ボックス本体（通常時） */
+    /* 入力ボックス本体 */
     div[data-baseweb="select"] > div, 
     div[data-baseweb="input"] > div {
         background-color: #0E1117 !important;
@@ -101,25 +102,13 @@ st.markdown("""
         border: 1px solid #444 !important;
         border-radius: 8px !important;
     }
-
-    /* 【追加】入力ボックス本体（クリック/入力中） */
-    /* 赤くなるのを防ぎ、テーマカラーの紫にします */
-    div[data-baseweb="select"] > div:focus-within, 
-    div[data-baseweb="input"] > div:focus-within {
-        border-color: #a688fa !important; /* 紫色 */
-        box-shadow: 0 0 0 1px #a688fa !important; /* ふんわり光らせる */
-    }
-
-    /* 入力文字色 */
     input[type="text"] { color: #FAFAFA !important; }
     div[data-baseweb="select"] span { color: #FAFAFA !important; }
-    
-    /* ドロップダウンメニュー */
     ul[data-baseweb="menu"] { background-color: #262730 !important; border: 1px solid #444 !important; }
     li[data-baseweb="option"] { color: #FAFAFA !important; }
     svg { fill: #FAFAFA !important; }
 
-    /* === ボタン === */
+    /* === ボタン（共通） === */
     .stButton>button {
         width: 100%;
         background: linear-gradient(90deg, #ff758c 0%, #ff7eb3 100%);
@@ -129,18 +118,21 @@ st.markdown("""
         box-shadow: 0 4px 15px rgba(255, 118, 136, 0.4);
     }
 
-    /* === 結果表示用カード（白背景・黒文字） === */
+    /* =========================================================
+       === 結果表示用カード（Code 2仕様: 白背景・黒文字） === 
+       ========================================================= */
     .result-card {
-        background: white !important;
+        background: white !important; /* 白背景 */
         padding: 25px;
         border-radius: 15px;
         box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         margin-bottom: 20px;
-        color: #333 !important;
+        color: #333 !important; /* 黒文字 */
         transition: transform 0.2s;
     }
     .result-card:hover { transform: translateY(-2px); }
     
+    /* 結果カード内の文字色を強制的に黒にする（全体が白文字設定のため上書き必須） */
     .result-card h1, .result-card h2, .result-card h3, 
     .result-card p, .result-card li, .result-card span, .result-card div,
     .result-card td, .result-card th {
@@ -148,7 +140,7 @@ st.markdown("""
     }
 
     .result-card-title {
-        color: #764ba2 !important;
+        color: #764ba2 !important; /* タイトルは紫 */
         font-size: 1.2rem; font-weight: bold;
         margin-bottom: 15px; display: flex; align-items: center; gap: 10px;
         border-bottom: 2px solid #f0f0f0; padding-bottom: 10px;
@@ -371,6 +363,9 @@ if st.button("✨ ベストなプランを生成する"):
                     </button>
                 </div>
                 """, unsafe_allow_html=True)
+
+
+
 
 
 
